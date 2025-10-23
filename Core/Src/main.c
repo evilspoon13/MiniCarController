@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "minicar.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -99,6 +100,8 @@ int main(void)
   {
     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
     HAL_Delay(1000); 
+
+    MinicarIter();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
