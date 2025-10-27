@@ -4,8 +4,11 @@
 #include "common.h"
 #include "context.h"
 
+#define HEARTBEAT_TIMEOUT_MS 5000
+
 void MinicarInit(SystemState* system_state);
 void MinicarIter(SystemState* system_state);
+int MinicarWakeup(SystemState* system_state);
 void MinicarShutdown(SystemState* system_state);
 
 #endif
