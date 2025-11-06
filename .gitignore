@@ -6,11 +6,8 @@ sim/bin/
 
 # Python cache
 __pycache__/
-# Build artifacts
-Debug/
-Release/
-Sim/bin/
-sim/bin/
 
-# Python cache
-__pycache__/
+#ide stuff
+.settings\stm32cubeide.project.prefs
+.settings/language.settings.xml
+.mxproject
