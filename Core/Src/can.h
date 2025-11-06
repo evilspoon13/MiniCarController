@@ -13,8 +13,6 @@
 
 #define CANID_TX_HEARTBEAT 0x104
 
-int CanInit(CAN_HandleTypeDef* hcan);
-
 int CanTransmit(CAN_HandleTypeDef* hcan, uint32_t id, uint8_t data[8]);
 
 int CanTxHeartbeat(SystemState* state);

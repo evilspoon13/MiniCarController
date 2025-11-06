@@ -50,6 +50,8 @@ typedef struct _SystemState {
         Speed_e speed;
         bool new_command_flag;
     } motor;
+
+    bool received_heartbeat;
 } SystemState;
 
 #endif

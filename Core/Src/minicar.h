@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "context.h"
+#include "can.h"
 
 #define HEARTBEAT_TIMEOUT_MS 5000
 
