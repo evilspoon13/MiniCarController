@@ -5,6 +5,7 @@
 void MinicarCanRx(SystemState* state, CAN_RxHeaderTypeDef rx_header, uint8_t rx_data[8])
 {
     // process incoming CAN data
+
     uint32_t can_id = rx_header.StdId;
     switch(can_id)
     {
@@ -12,14 +13,6 @@ void MinicarCanRx(SystemState* state, CAN_RxHeaderTypeDef rx_header, uint8_t rx_
             // process heartbeat
             state->last_rx_heartbeat = HAL_GetTick();
             state->received_heartbeat = true;
-
-            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-            // HAL_Delay(50);
-            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-
-            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-            // HAL_Delay(50);
-            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
             break;
         case CANID_MOTOR_CMD:
             // parse motor command
@@ -71,14 +64,6 @@ int MinicarWakeup(SystemState* state)
 
 void MinicarIter(SystemState* state)
 {
-
-    // // Debug: blink LED slowly to show main loop is running
-    // static uint32_t last_blink = 0;
-    // if (HAL_GetTick() - last_blink > 500) {  // Blink every 500ms
-    //     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-    //     last_blink = HAL_GetTick();
-    // }
-
     // Check if we received a heartbeat
     if(state->received_heartbeat)
     {
@@ -97,9 +82,7 @@ void MinicarIter(SystemState* state)
 
         int status;
         if((status = CanTransmit(state->hw.can, CANID_RX_HEARTBEAT, test_data)) != HAL_OK){
-            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-            // HAL_Delay(50);
-            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+            // handle error
         }
         last_tx = now;
     }
