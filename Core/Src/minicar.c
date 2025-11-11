@@ -12,6 +12,14 @@ void MinicarCanRx(SystemState* state, CAN_RxHeaderTypeDef rx_header, uint8_t rx_
             // process heartbeat
             state->last_rx_heartbeat = HAL_GetTick();
             state->received_heartbeat = true;
+
+            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            // HAL_Delay(50);
+            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            // HAL_Delay(50);
+            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
             break;
         case CANID_MOTOR_CMD:
             // parse motor command
@@ -21,7 +29,6 @@ void MinicarCanRx(SystemState* state, CAN_RxHeaderTypeDef rx_header, uint8_t rx_
             state->motor.speed = speed;
             state->motor.new_command_flag = true;
             break;
-
         // handle other CAN IDs as needed
 
         default:
@@ -32,33 +39,33 @@ void MinicarCanRx(SystemState* state, CAN_RxHeaderTypeDef rx_header, uint8_t rx_
 
 void MinicarInit(SystemState* state)
 {
-    state->cur_state = STATE_INIT;
 
     // init car
     HAL_TIM_Base_Start(state->hw.timer);
 
-    // CAN is already fully configured in MX_CAN1_Init()
-    // No need to call ConfigCan anymore!
+    int status;
+    if((status = ConfigCan(state)) != HAL_OK)
+    {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        HAL_Delay(100);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
-    // SUCCESS blink
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-    HAL_Delay(500);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-
-    // enter idle state: waiting for heartbeat
-    state->cur_state = STATE_IDLE;
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        HAL_Delay(100);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+    }
 }
 
 void MinicarShutdown(SystemState* state)
 {
     // todo: more stuff?
-    state->cur_state = STATE_IDLE;
+    state->active = false;
 }
 
 int MinicarWakeup(SystemState* state)
 {
     // todo: motor stuff
-    state->cur_state = STATE_ACTIVE;
+    state->active = true;
     return HAL_OK;
 }
 
@@ -72,7 +79,6 @@ void MinicarIter(SystemState* state)
     //     last_blink = HAL_GetTick();
     // }
 
-
     // Check if we received a heartbeat
     if(state->received_heartbeat)
     {
@@ -82,99 +88,20 @@ void MinicarIter(SystemState* state)
         state->received_heartbeat = false;
     }
 
-    // TEST: Send a message every second
+    //TEST: Send a message every second
     static uint32_t last_tx = 0;
     uint32_t now = HAL_GetTick();
     
     if (now - last_tx > 1000) {
         uint8_t test_data[8] = {0xAA, 0xBB, 0xCC, 0xDD, 0x11, 0x22, 0x33, 0x44};
-        CanTransmit(state->hw.can, CANID_RX_HEARTBEAT, test_data);
+
+        int status;
+        if((status = CanTransmit(state->hw.can, CANID_RX_HEARTBEAT, test_data)) != HAL_OK){
+            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            // HAL_Delay(50);
+            // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        }
         last_tx = now;
-    }
-
-    
-    // // After CanTransmit call, check mailbox status
-    // if (now - last_tx > 1000) {
-    //     uint8_t test_data[8] = {0xAA, 0xBB, 0xCC, 0xDD, 0x11, 0x22, 0x33, 0x44};
-        
-    //     int status = CanTransmit(state->hw.can, CANID_RX_HEARTBEAT, test_data);
-        
-    //     // Check error status
-    //     uint32_t error = HAL_CAN_GetError(state->hw.can);
-        
-    //     if (status == HAL_OK && error == HAL_CAN_ERROR_NONE) {
-    //         // Success - quick blink
-    //         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-    //         HAL_Delay(50);
-    //         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-    //     } else {
-    //         // Error - stay on
-    //         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-    //     }
-        
-    //     last_tx = now;
-    // }
-
-
-    
-    // static uint32_t last_tx = 0;
-    // uint32_t now = HAL_GetTick();
-    
-    // if (now - last_tx > 1000) {
-    //     uint8_t test_data[8] = {0xAA, 0xBB, 0xCC, 0xDD, 0x11, 0x22, 0x33, 0x44};
-        
-    //     int result = CanTransmit(state->hw.can, 0x103, test_data);
-        
-    //     if (result == HAL_OK) {
-    //         // Transmission successful - blink LED
-            
-    //         // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-    //         // HAL_Delay(50);
-    //         // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-            
-    //     } else {
-            
-    //         // Transmission FAILED - rapid blinking
-    //         for(int i = 0; i < 5; i++) {
-    //             HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-    //             HAL_Delay(100);
-    //         }
-                
-    //     }
-        
-    //     last_tx = now;
-    // }
-
-    //
-    // transition to requested state
-    //
-    if(state->cur_state != STATE_IDLE && state->req_state == STATE_SHUTDOWN)
-    {
-        MinicarShutdown(state);
-        return;
-    }
-    else if(state->cur_state != STATE_ACTIVE && state->req_state == STATE_IDLE)
-    {
-        MinicarWakeup(state);
-        return;
-    }
-
-    //
-    // set requested states
-    //
-    uint64_t current_time = HAL_GetTick();
-    uint64_t elapsed_since_heartbeat = current_time - state->last_rx_heartbeat;
-    
-    if(state->cur_state == STATE_IDLE && elapsed_since_heartbeat < HEARTBEAT_TIMEOUT_MS){
-        // we're in idle and received a recent heartbeat -> enter active
-        state->req_state = STATE_ACTIVE;
-        return;
-    }
-    else if(state->cur_state == STATE_ACTIVE && elapsed_since_heartbeat > HEARTBEAT_TIMEOUT_MS)
-    {
-        // we havent heard from the laptop node in more than heartbeat timeout ms -> enter shutdown
-        state->req_state = STATE_SHUTDOWN;
-        return;
     }
 
     // // todo - handle new motor commands

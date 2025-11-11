@@ -1,11 +1,13 @@
 #include "can.h"
+#include "string.h" // for memset
 
 int CanInit(CAN_HandleTypeDef* hcan)
 {
-    CAN_FilterTypeDef f = {0};
-    int status = HAL_OK;
+    CAN_FilterTypeDef f;
+    HAL_StatusTypeDef status;
 
-    // Configure filter to accept all messages
+    memset(&f, 0, sizeof(f));
+
     f.FilterBank = 0;
     f.FilterMode = CAN_FILTERMODE_IDMASK;
     f.FilterScale = CAN_FILTERSCALE_32BIT;
@@ -14,17 +16,16 @@ int CanInit(CAN_HandleTypeDef* hcan)
     f.FilterMaskIdHigh = 0x0000;
     f.FilterMaskIdLow = 0x0000;
     f.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-    f.FilterActivation = CAN_FILTER_ENABLE;
+    f.FilterActivation = ENABLE;
     f.SlaveStartFilterBank = 14;
 
-    if ((status = HAL_CAN_ConfigFilter(hcan, &f)) != HAL_OK)
+    status = HAL_CAN_ConfigFilter(hcan, &f);
+    if (status != HAL_OK) {
         return status;
+    }
 
-    if ((status = HAL_CAN_Start(hcan)) != HAL_OK)
-        return status;
-
-    if ((status = HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING)) != HAL_OK)
-        return status;
+    if ((status = HAL_CAN_Start(hcan)) != HAL_OK) return status;
+    if ((status = HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING)) != HAL_OK) return status;
 
     return HAL_OK;
 }

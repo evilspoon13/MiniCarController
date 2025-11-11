@@ -18,14 +18,6 @@ typedef enum _Speed_e {
     SPEED_HIGH,
 } Speed_e;
 
-typedef enum _SystemState_e {
-    STATE_INIT,
-    STATE_IDLE,
-    STATE_ACTIVE,
-    STATE_SHUTDOWN,
-    STATE_ERROR
-} SystemState_e;
-
 typedef struct _Hardware {
     TIM_HandleTypeDef* timer;
 
@@ -39,9 +31,7 @@ typedef struct _SystemState {
     // hardware components
     Hardware hw;
 
-    // system state
-    SystemState_e cur_state;
-    SystemState_e req_state;
+    bool active;
     uint64_t last_rx_heartbeat;
 
     // motor stuff
