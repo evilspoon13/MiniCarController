@@ -8,19 +8,11 @@ typedef enum _MotorCommand {
     CMD_FORWARD,
     CMD_BACKWARD,
     CMD_TURN_LEFT,
-    CMD_TURN_RUGHT
+    CMD_TURN_RIGHT
 } MotorCommand_e;
-
-typedef enum _Speed_e {
-    SPEED_STOPPED,
-    SPEED_LOW,
-    SPEED_MEDIUM,
-    SPEED_HIGH,
-} Speed_e;
 
 typedef struct _Hardware {
     TIM_HandleTypeDef* timer;
-
     CAN_HandleTypeDef* can;
     CAN_TxHeaderTypeDef can_tx_header;
     uint32_t can_tx_mailbox;
@@ -37,11 +29,10 @@ typedef struct _SystemState {
     // motor stuff
     struct {
         MotorCommand_e motor_command;
-        Speed_e speed;
+        uint8_t speed;
         bool new_command_flag;
     } motor;
 
-    bool received_heartbeat;
 } SystemState;
 
 #endif

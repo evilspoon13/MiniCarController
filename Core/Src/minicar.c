@@ -1,6 +1,6 @@
-#include "can.h"
-#include "context.h"
 #include "minicar.h"
+#include "context.h"
+#include "motor.h"
 
 void MinicarCanRx(SystemState* state, CAN_RxHeaderTypeDef rx_header, uint8_t rx_data[8])
 {
@@ -12,12 +12,14 @@ void MinicarCanRx(SystemState* state, CAN_RxHeaderTypeDef rx_header, uint8_t rx_
         case CANID_RX_HEARTBEAT:
             // process heartbeat
             state->last_rx_heartbeat = HAL_GetTick();
-            state->received_heartbeat = true;
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            HAL_Delay(50);
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
             break;
         case CANID_MOTOR_CMD:
             // parse motor command
             MotorCommand_e cmd = (MotorCommand_e)rx_data[0];
-            Speed_e speed = (Speed_e)rx_data[1];
+            uint8_t speed = rx_data[1];
             state->motor.motor_command = cmd;
             state->motor.speed = speed;
             state->motor.new_command_flag = true;
@@ -42,42 +44,34 @@ void MinicarInit(SystemState* state)
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
         HAL_Delay(100);
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-        HAL_Delay(100);
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
     }
+
+    MotorInit(state);
+
+    state->active = true;
 }
 
 void MinicarShutdown(SystemState* state)
 {
-    // todo: more stuff?
     state->active = false;
-}
-
-int MinicarWakeup(SystemState* state)
-{
-    // todo: motor stuff
-    state->active = true;
-    return HAL_OK;
 }
 
 void MinicarIter(SystemState* state)
 {
-    // Check if we received a heartbeat
-    if(state->received_heartbeat)
-    {
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-        HAL_Delay(50);
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-        state->received_heartbeat = false;
-    }
-
-    //TEST: Send a message every second
     static uint32_t last_tx = 0;
     uint32_t now = HAL_GetTick();
-    
-    if (now - last_tx > 1000) {
+
+    // check heartbeat timeout
+    if (state->last_rx_heartbeat < now - HEARTBEAT_TIMEOUT_MS)
+    {
+        // handle timeout
+        MotorsStopAll(state);
+        state->active = false;
+    }
+
+    // transmit heartbeat to laptop node
+    if (now - last_tx > 1000)
+    {
         uint8_t test_data[8] = {0xAA, 0xBB, 0xCC, 0xDD, 0x11, 0x22, 0x33, 0x44};
 
         int status;
@@ -87,30 +81,36 @@ void MinicarIter(SystemState* state)
         last_tx = now;
     }
 
-    // // todo - handle new motor commands
-    // if(state->motor.new_command_flag){
-    //     MotorCommand_e cmd = state->motor.motor_command;
-    //     Speed_e speed = state->motor.speed;
-    //     state->motor.new_command_flag = false;
+    // Handle new motor commands
+    if (state->motor.new_command_flag)
+    {
+        MotorCommand_e cmd = state->motor.motor_command;
+        uint8_t speed = state->motor.speed;
+        state->motor.new_command_flag = false;
 
-    //     switch(cmd){
-    //         case CMD_STOP:
-    //             MotorStop(state);
-    //             break;
-    //         case CMD_FORWARD:
-    //             MotorForward(state, speed);
-    //             break;
-    //         case CMD_BACKWARD:
-    //             MotorBackward(state, speed);
-    //             break;
-    //         case CMD_TURN_LEFT:
-    //             MotorTurnLeft(state, speed);
-    //             break;
-    //         case CMD_TURN_RIGHT:
-    //             MotorTurnRight(state, speed);
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
+        switch(cmd){
+            case CMD_STOP:
+                MotorsStopAll(state);
+                break;
+            case CMD_FORWARD:
+                LeftMotorForward(state, speed);
+                RightMotorForward(state, speed);
+                break;
+            case CMD_BACKWARD:
+                LeftMotorBackward(state, speed);
+                RightMotorBackward(state, speed);
+                break;
+            case CMD_TURN_LEFT:
+                LeftMotorBackward(state, speed);
+                RightMotorForward(state, speed);
+                break;
+                
+            case CMD_TURN_RIGHT:
+                LeftMotorForward(state, speed);
+                RightMotorBackward(state, speed);
+                break;
+            default:
+                break;
+        }
+    }
 }
