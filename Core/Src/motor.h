@@ -26,5 +26,6 @@ void RightMotorBackward(SystemState *state, uint8_t speed);
 void RightMotorStop(SystemState *state);
 void MotorsStopAll(SystemState *state);
 
+void HandleMotorCommand(SystemState* state);
 
 #endif

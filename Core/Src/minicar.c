@@ -81,36 +81,5 @@ void MinicarIter(SystemState* state)
         last_tx = now;
     }
 
-    // Handle new motor commands
-    if (state->motor.new_command_flag)
-    {
-        MotorCommand_e cmd = state->motor.motor_command;
-        uint8_t speed = state->motor.speed;
-        state->motor.new_command_flag = false;
-
-        switch(cmd){
-            case CMD_STOP:
-                MotorsStopAll(state);
-                break;
-            case CMD_FORWARD:
-                LeftMotorForward(state, speed);
-                RightMotorForward(state, speed);
-                break;
-            case CMD_BACKWARD:
-                LeftMotorBackward(state, speed);
-                RightMotorBackward(state, speed);
-                break;
-            case CMD_TURN_LEFT:
-                LeftMotorBackward(state, speed);
-                RightMotorForward(state, speed);
-                break;
-                
-            case CMD_TURN_RIGHT:
-                LeftMotorForward(state, speed);
-                RightMotorBackward(state, speed);
-                break;
-            default:
-                break;
-        }
-    }
+    HandleMotorCommand(state);
 }

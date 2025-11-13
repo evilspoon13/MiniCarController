@@ -25,6 +25,7 @@ typedef struct _SystemState {
 
     bool active;
     uint64_t last_rx_heartbeat;
+    uint64_t last_tx_heartbeat;
 
     // motor stuff
     struct {
