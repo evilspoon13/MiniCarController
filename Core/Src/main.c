@@ -103,35 +103,14 @@ int main(void)
   state.hw.can = &hcan1;
   state.hw.timer = &htim1;
 
-  //MinicarInit(&state);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  MinicarInit(&state);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // MinicarIter(&state);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(MOTOR1_IN1_PORT, MOTOR1_IN1_PIN, 1);
-    HAL_GPIO_WritePin(MOTOR1_IN2_PORT, MOTOR1_IN2_PIN, 0);
-
-    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, htim1.Init.Period / 1.5);
-    HAL_Delay(2000);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-
-    HAL_Delay(2000);
-
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(MOTOR1_IN1_PORT, MOTOR1_IN1_PIN, 0);
-    HAL_GPIO_WritePin(MOTOR1_IN2_PORT, MOTOR1_IN2_PIN, 1);
-    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, htim1.Init.Period / 3);
-
-    HAL_Delay(2000);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-    HAL_Delay(2000);
+    MinicarIter(&state);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
