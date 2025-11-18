@@ -2,8 +2,8 @@
 
 void MotorInit(SystemState* state)
 {
-    HAL_TIM_PWM_Start(state->hw.timer, TIM_CHANNEL_1); //ena
-    HAL_TIM_PWM_Start(state->hw.timer, TIM_CHANNEL_2); //enb
+    HAL_TIM_PWM_Start(state->hw.timer, TIM_CHANNEL_1); //ena - PA8 - D7
+    HAL_TIM_PWM_Start(state->hw.timer, TIM_CHANNEL_2); //enb - PA9 - D8
 
     HAL_GPIO_WritePin(MOTOR1_IN1_PORT, MOTOR1_IN1_PIN, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(MOTOR1_IN2_PORT, MOTOR1_IN2_PIN, GPIO_PIN_RESET);
@@ -23,8 +23,7 @@ void LeftMotorForward(SystemState* state, uint8_t speed)
 
     HAL_GPIO_WritePin(MOTOR1_IN1_PORT, MOTOR1_IN1_PIN, GPIO_PIN_SET);
     HAL_GPIO_WritePin(MOTOR1_IN2_PORT, MOTOR1_IN2_PIN, GPIO_PIN_RESET);
-
-    __HAL_TIM_SET_COMPARE(state->hw.timer, TIM_CHANNEL_1, speed);
+    __HAL_TIM_SET_COMPARE(state->hw.timer, TIM_CHANNEL_1, state->hw.timer->Init.Period*speed/100);
 }
 
 void LeftMotorBackward(SystemState* state, uint8_t speed)
@@ -36,7 +35,7 @@ void LeftMotorBackward(SystemState* state, uint8_t speed)
 
     HAL_GPIO_WritePin(MOTOR1_IN1_PORT, MOTOR1_IN1_PIN, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(MOTOR1_IN2_PORT, MOTOR1_IN2_PIN, GPIO_PIN_SET);
-    __HAL_TIM_SET_COMPARE(state->hw.timer, TIM_CHANNEL_1, speed);
+    __HAL_TIM_SET_COMPARE(state->hw.timer, TIM_CHANNEL_1, state->hw.timer->Init.Period*speed/100);
 }
 
 void LeftMotorStop(SystemState* state)
@@ -55,7 +54,7 @@ void RightMotorForward(SystemState* state, uint8_t speed)
 
     HAL_GPIO_WritePin(MOTOR2_IN3_PORT, MOTOR2_IN3_PIN, GPIO_PIN_SET);
     HAL_GPIO_WritePin(MOTOR2_IN4_PORT, MOTOR2_IN4_PIN, GPIO_PIN_RESET);
-    __HAL_TIM_SET_COMPARE(state->hw.timer, TIM_CHANNEL_2, speed);
+    __HAL_TIM_SET_COMPARE(state->hw.timer, TIM_CHANNEL_2, state->hw.timer->Init.Period*speed/100);
 }
 
 void RightMotorBackward(SystemState* state, uint8_t speed)
@@ -67,7 +66,7 @@ void RightMotorBackward(SystemState* state, uint8_t speed)
 
     HAL_GPIO_WritePin(MOTOR2_IN3_PORT, MOTOR2_IN3_PIN, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(MOTOR2_IN4_PORT, MOTOR2_IN4_PIN, GPIO_PIN_SET);
-    __HAL_TIM_SET_COMPARE(state->hw.timer, TIM_CHANNEL_2, speed);
+    __HAL_TIM_SET_COMPARE(state->hw.timer, TIM_CHANNEL_2, state->hw.timer->Init.Period*speed/100);
 }
 
 void RightMotorStop(SystemState* state)

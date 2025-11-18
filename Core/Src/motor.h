@@ -18,15 +18,15 @@ GND → GND
 */
 
 // Pin definitions
-#define MOTOR1_IN1_PIN    GPIO_PIN_0
+#define MOTOR1_IN1_PIN    GPIO_PIN_4 //PB4 - D5
 #define MOTOR1_IN1_PORT   GPIOB
-#define MOTOR1_IN2_PIN    GPIO_PIN_1
+#define MOTOR1_IN2_PIN    GPIO_PIN_5 //PB5 - D4
 #define MOTOR1_IN2_PORT   GPIOB
 
-#define MOTOR2_IN3_PIN    GPIO_PIN_2
-#define MOTOR2_IN3_PORT   GPIOB
-#define MOTOR2_IN4_PIN    GPIO_PIN_3
-#define MOTOR2_IN4_PORT   GPIOB
+#define MOTOR2_IN3_PIN    GPIO_PIN_6 //PA6 - D12
+#define MOTOR2_IN3_PORT   GPIOA
+#define MOTOR2_IN4_PIN    GPIO_PIN_7 //PA7 - D11
+#define MOTOR2_IN4_PORT   GPIOA
 
 #define MAX_PWM 65  // Maximum safe PWM duty cycle
 
