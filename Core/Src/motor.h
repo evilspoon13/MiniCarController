@@ -4,6 +4,19 @@
 #include "common.h"
 #include "context.h"
 
+
+/*
+           ON NUCLEO
+PA0 → ENA  A0
+PB0 → IN1  A3
+PB1 → IN2  CN10 26
+PA1 → ENB  A1
+PB2 → IN3  CN10 22
+PB3 → IN4  D3
+GND → GND  
+
+*/
+
 // Pin definitions
 #define MOTOR1_IN1_PIN    GPIO_PIN_0
 #define MOTOR1_IN1_PORT   GPIOB

@@ -23,6 +23,7 @@ void LeftMotorForward(SystemState* state, uint8_t speed)
 
     HAL_GPIO_WritePin(MOTOR1_IN1_PORT, MOTOR1_IN1_PIN, GPIO_PIN_SET);
     HAL_GPIO_WritePin(MOTOR1_IN2_PORT, MOTOR1_IN2_PIN, GPIO_PIN_RESET);
+
     __HAL_TIM_SET_COMPARE(state->hw.timer, TIM_CHANNEL_1, speed);
 }
 
