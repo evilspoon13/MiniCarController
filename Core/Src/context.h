@@ -11,6 +11,13 @@ typedef enum _MotorCommand {
     CMD_TURN_RIGHT
 } MotorCommand_e;
 
+typedef enum _SafetyState {
+    SAFETY_NORMAL,           // Normal operation, heartbeat OK
+    SAFETY_DEGRADED,         // Heartbeat warning (approaching timeout)
+    SAFETY_EMERGENCY_STOP,   // Heartbeat lost, motors stopped
+    SAFETY_FAULT             // Critical fault condition
+} SafetyState_e;
+
 typedef struct _Hardware {
     TIM_HandleTypeDef* timer;
     CAN_HandleTypeDef* can;
@@ -28,6 +35,12 @@ typedef struct _SystemState {
         uint8_t speed;
         bool new_command_flag;
     } motor;
+    struct {
+        SafetyState_e state;
+        uint32_t heartbeat_loss_count;
+        uint32_t last_state_change;
+        bool emergency_stop_triggered;
+    } safety;
 } SystemState;
 
 #endif
