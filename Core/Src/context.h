@@ -19,21 +19,15 @@ typedef struct _Hardware {
 } Hardware;
 
 typedef struct _SystemState {
-
-    // hardware components
     Hardware hw;
-
     bool active;
     uint64_t last_rx_heartbeat;
     uint64_t last_tx_heartbeat;
-
-    // motor stuff
     struct {
         MotorCommand_e motor_command;
         uint8_t speed;
         bool new_command_flag;
     } motor;
-
 } SystemState;
 
 #endif

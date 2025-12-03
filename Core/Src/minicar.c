@@ -6,13 +6,13 @@
 void MinicarCanRx(SystemState* state, CAN_RxHeaderTypeDef rx_header, uint8_t rx_data[8])
 {
     // process incoming CAN data
-
     uint32_t can_id = rx_header.StdId;
     switch(can_id)
     {
         case CANID_RX_HEARTBEAT:
             // process heartbeat
             state->last_rx_heartbeat = HAL_GetTick();
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
             break;
         case CANID_MOTOR_CMD:
             // parse motor command
@@ -22,7 +22,6 @@ void MinicarCanRx(SystemState* state, CAN_RxHeaderTypeDef rx_header, uint8_t rx_
             state->motor.speed = speed;
             state->motor.new_command_flag = true;
             break;
-        // handle other CAN IDs as needed
 
         default:
             // unknown CAN ID
@@ -56,9 +55,12 @@ void MinicarShutdown(SystemState* state)
 
 void MinicarIter(SystemState* state)
 {
+
+    //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
     static uint32_t last_tx = 0;
     uint32_t now = HAL_GetTick();
 
+    
     
     // todo: use system state to flash led, not heartbeat
 
@@ -71,8 +73,6 @@ void MinicarIter(SystemState* state)
     // check heartbeat timeout
     if (state->last_rx_heartbeat < now - HEARTBEAT_TIMEOUT_MS)
     {
-        // handle timeout
-        // MotorsStopAll(state);
         state->active = false;
     }
 
@@ -84,7 +84,6 @@ void MinicarIter(SystemState* state)
         int status;
         if((status = CanTransmit(state->hw.can, CANID_TX_HEARTBEAT, test_data)) != HAL_OK){
             // handle error
-            //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
         }
         last_tx = now;
     }
